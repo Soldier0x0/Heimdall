@@ -9,92 +9,122 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- Google Fonts - Google Sans -->
+    <!-- Google Fonts - Product Sans (closest alternative) and Google Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Product+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Material Icons -->
+    <!-- Material Symbols Icons (Latest Google Icons) -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- Fallback Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <title>OSINT Nexus</title>
     
     <style>
-      /* Splash screen styles */
+      /* Material You Splash Screen */
       #splash-screen {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #1976d2, #1565c0);
+        background: linear-gradient(135deg, 
+          #6750A4 0%, 
+          #7C4DFF 25%, 
+          #3F51B5 50%, 
+          #2196F3 75%, 
+          #00BCD4 100%);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 9999;
         transition: opacity 0.5s ease-out;
+        font-family: 'Product Sans', 'Google Sans', sans-serif;
       }
       
       #splash-logo {
         width: 120px;
         height: 120px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 24px;
-        animation: pulse 2s infinite;
+        animation: breathe 3s ease-in-out infinite;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
       }
       
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+      @keyframes breathe {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.05) rotate(2deg); }
       }
       
       .splash-title {
         color: white;
-        font-family: 'Google Sans', sans-serif;
-        font-size: 32px;
+        font-family: 'Product Sans', 'Google Sans', sans-serif;
+        font-size: 36px;
         font-weight: 500;
         margin-bottom: 8px;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       
       .splash-subtitle {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-family: 'Google Sans', sans-serif;
         font-size: 16px;
         font-weight: 400;
+        letter-spacing: 0.5px;
       }
       
       .loading-spinner {
-        margin-top: 32px;
+        margin-top: 40px;
       }
       
       .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-top: 4px solid white;
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top: 3px solid white;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
       }
       
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+
+      /* Material You Loading States */
+      .material-you-shimmer {
+        background: linear-gradient(90deg, 
+          rgba(103, 80, 164, 0.1) 0%, 
+          rgba(103, 80, 164, 0.3) 50%, 
+          rgba(103, 80, 164, 0.1) 100%);
+        background-size: 200% 100%;
+        animation: shimmer 2s ease-in-out infinite;
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
     </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     
-    <!-- Splash Screen -->
+    <!-- Enhanced Splash Screen -->
     <div id="splash-screen">
       <div id="splash-logo">
-        <span class="material-icons" style="font-size: 48px; color: white;">security</span>
+        <span class="material-symbols-rounded" style="font-size: 48px; color: white; font-weight: 300;">shield</span>
       </div>
       <div class="splash-title">OSINT Nexus</div>
       <div class="splash-subtitle">Enterprise Intelligence Platform</div>
