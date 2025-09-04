@@ -23,4 +23,4 @@ whois==0.9.27
 pydantic==2.5.2
 motor==3.3.2
 bcrypt==4.1.2
-cryptography==41.0.8
+cryptography==45.0.7
