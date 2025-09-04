@@ -18,6 +18,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Paper,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
