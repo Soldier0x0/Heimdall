@@ -9,7 +9,6 @@ import {
   Typography,
   IconButton,
   Badge,
-  Fade,
   useTheme,
   useMediaQuery,
   Drawer,
@@ -19,35 +18,28 @@ import {
   ListItemText,
   Divider,
   Paper,
+  Avatar,
+  Chip,
+  Stack,
+  Fade,
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  Search as SearchIcon,
-  Widgets as WidgetsIcon,
-  Notifications as NotificationsIcon,
-  Person as PersonIcon,
-  Menu as MenuIcon,
-  Security,
-  Brightness4,
-  Brightness7,
-  Settings,
-} from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PixelIcons } from './PixelIcons';
 
 const navigationItems = [
-  { label: 'Dashboard', value: '/dashboard', icon: DashboardIcon },
-  { label: 'Investigations', value: '/investigations', icon: SearchIcon },
-  { label: 'Widgets', value: '/widgets', icon: WidgetsIcon },
-  { label: 'Notifications', value: '/notifications', icon: NotificationsIcon },
-  { label: 'Profile', value: '/profile', icon: PersonIcon },
+  { label: 'Dashboard', value: '/dashboard', icon: 'Dashboard' },
+  { label: 'Investigations', value: '/investigations', icon: 'Search' },
+  { label: 'Widgets', value: '/widgets', icon: 'Widgets' },
+  { label: 'Notifications', value: '/notifications', icon: 'Notifications' },
+  { label: 'Profile', value: '/profile', icon: 'Person' },
 ];
 
 const MainLayout = ({ 
   children, 
   themeMode, 
   onThemeChange, 
-  primaryColor, 
-  onPrimaryColorChange 
+  colorScheme, 
+  onColorSchemeChange 
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(3);
@@ -59,6 +51,10 @@ const MainLayout = ({
   
   const getCurrentPageTitle = () => {
     const currentPath = location.pathname;
+    if (currentPath.startsWith('/module/')) {
+      const moduleId = currentPath.split('/')[2];
+      return `${moduleId.toUpperCase()} Module`;
+    }
     const currentItem = navigationItems.find(item => item.value === currentPath);
     return currentItem ? currentItem.label : 'OSINT Nexus';
   };
@@ -76,125 +72,220 @@ const MainLayout = ({
   };
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Top App Bar */}
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh',
+      background: theme.palette.background.default,
+    }}>
+      {/* Pixel-style Top App Bar */}
       <AppBar
         position="sticky"
         elevation={0}
         sx={{
           background: theme.palette.mode === 'light' 
             ? 'rgba(255, 255, 255, 0.95)' 
-            : 'rgba(30, 30, 30, 0.95)',
-          backdropFilter: 'blur(10px)',
-          color: theme.palette.mode === 'light' ? 'text.primary' : 'white',
+            : 'rgba(28, 27, 31, 0.95)',
+          backdropFilter: 'blur(20px)',
+          color: theme.palette.text.primary,
+          borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ px: isMobile ? 2 : 4 }}>
           {isMobile && (
             <IconButton
               edge="start"
               color="inherit"
               aria-label="menu"
               onClick={toggleDrawer}
-              sx={{ mr: 2 }}
+              sx={{ 
+                mr: 2,
+                background: 'rgba(103, 80, 164, 0.1)',
+                '&:hover': {
+                  background: 'rgba(103, 80, 164, 0.2)',
+                },
+              }}
             >
-              <MenuIcon />
+              <PixelIcons.Menu />
             </IconButton>
           )}
           
           <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              <Security sx={{ mr: 2, color: primaryColor }} />
+              <Avatar
+                sx={{
+                  background: `linear-gradient(135deg, ${colorScheme.primary}, ${colorScheme.primary}cc)`,
+                  mr: 2,
+                  width: 40,
+                  height: 40,
+                }}
+              >
+                <PixelIcons.Shield size={24} />
+              </Avatar>
             </motion.div>
             
             <Box>
-              <Typography variant="h6" component="div" fontWeight="500">
+              <Typography variant="h6" component="div" fontWeight="500" sx={{ fontFamily: '"Product Sans", sans-serif' }}>
                 {getCurrentPageTitle()}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: '"Google Sans", sans-serif' }}>
                 Enterprise Intelligence Platform
               </Typography>
             </Box>
           </Box>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton color="inherit" onClick={toggleTheme}>
-              {themeMode === 'light' ? <Brightness4 /> : <Brightness7 />}
-            </IconButton>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {/* Theme Toggle */}
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <IconButton 
+                color="inherit" 
+                onClick={toggleTheme}
+                sx={{
+                  background: 'rgba(103, 80, 164, 0.1)',
+                  '&:hover': {
+                    background: 'rgba(103, 80, 164, 0.2)',
+                  },
+                }}
+              >
+                {themeMode === 'light' ? <PixelIcons.DarkMode /> : <PixelIcons.LightMode />}
+              </IconButton>
+            </motion.div>
             
-            <IconButton color="inherit">
-              <Badge badgeContent={notificationCount} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Box>
+            {/* Notifications */}
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <IconButton 
+                color="inherit"
+                sx={{
+                  background: 'rgba(103, 80, 164, 0.1)',
+                  '&:hover': {
+                    background: 'rgba(103, 80, 164, 0.2)',
+                  },
+                }}
+              >
+                <Badge 
+                  badgeContent={notificationCount} 
+                  color="error"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      fontSize: '0.75rem',
+                      fontFamily: '"Google Sans", sans-serif',
+                    }
+                  }}
+                >
+                  <PixelIcons.Notifications />
+                </Badge>
+              </IconButton>
+            </motion.div>
+          </Stack>
         </Toolbar>
       </AppBar>
       
-      {/* Mobile Drawer */}
+      {/* Enhanced Mobile Drawer */}
       <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer}
         sx={{
           '& .MuiDrawer-paper': {
-            width: 280,
+            width: 320,
             background: theme.palette.background.paper,
+            borderRadius: '0 28px 28px 0',
+            border: `1px solid ${theme.palette.divider}`,
+            backdropFilter: 'blur(20px)',
           },
         }}
       >
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Security sx={{ mr: 2, color: primaryColor }} />
-            <Typography variant="h6" fontWeight="500">
-              OSINT Nexus
-            </Typography>
+        <Box sx={{ p: 3 }}>
+          {/* Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Avatar
+              sx={{
+                background: `linear-gradient(135deg, ${colorScheme.primary}, ${colorScheme.primary}cc)`,
+                mr: 2,
+                width: 48,
+                height: 48,
+              }}
+            >
+              <PixelIcons.Shield size={28} />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" fontWeight="500" sx={{ fontFamily: '"Product Sans", sans-serif' }}>
+                OSINT Nexus
+              </Typography>
+              <Chip 
+                label={colorScheme.name} 
+                size="small" 
+                variant="outlined" 
+                sx={{ fontSize: '0.7rem' }}
+              />
+            </Box>
           </Box>
           
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ mb: 3 }} />
           
+          {/* Navigation Items */}
           <List>
-            {navigationItems.map((item) => {
-              const IconComponent = item.icon;
+            {navigationItems.map((item, index) => {
+              const IconComponent = PixelIcons[item.icon];
               const isActive = location.pathname === item.value;
               
               return (
-                <ListItem
+                <motion.div
                   key={item.value}
-                  button
-                  onClick={() => {
-                    navigate(item.value);
-                    setDrawerOpen(false);
-                  }}
-                  sx={{
-                    borderRadius: 2,
-                    mb: 1,
-                    background: isActive 
-                      ? `${primaryColor}20` 
-                      : 'transparent',
-                    '&:hover': {
-                      background: `${primaryColor}10`,
-                    },
-                  }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
                 >
-                  <ListItemIcon>
-                    <IconComponent 
-                      sx={{ color: isActive ? primaryColor : 'inherit' }} 
-                    />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.label}
-                    sx={{
-                      '& .MuiListItemText-primary': {
-                        color: isActive ? primaryColor : 'inherit',
-                        fontWeight: isActive ? 500 : 400,
-                      },
+                  <ListItem
+                    button
+                    onClick={() => {
+                      navigate(item.value);
+                      setDrawerOpen(false);
                     }}
-                  />
-                </ListItem>
+                    sx={{
+                      borderRadius: 3,
+                      mb: 1,
+                      background: isActive 
+                        ? `${colorScheme.primary}20` 
+                        : 'transparent',
+                      '&:hover': {
+                        background: `${colorScheme.primary}15`,
+                        transform: 'translateX(4px)',
+                      },
+                      transition: 'all 0.3s ease',
+                      py: 1.5,
+                    }}
+                  >
+                    <ListItemIcon>
+                      <IconComponent 
+                        size={24}
+                        style={{ color: isActive ? colorScheme.primary : theme.palette.text.secondary }} 
+                      />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.label}
+                      sx={{
+                        '& .MuiListItemText-primary': {
+                          color: isActive ? colorScheme.primary : theme.palette.text.primary,
+                          fontWeight: isActive ? 500 : 400,
+                          fontFamily: '"Google Sans", sans-serif',
+                        },
+                      }}
+                    />
+                    {item.value === '/notifications' && notificationCount > 0 && (
+                      <Badge badgeContent={notificationCount} color="error" />
+                    )}
+                  </ListItem>
+                </motion.div>
               );
             })}
           </List>
@@ -208,7 +299,8 @@ const MainLayout = ({
           flex: 1,
           overflow: 'auto',
           background: theme.palette.background.default,
-          pb: isMobile ? 8 : 0, // Add padding for mobile bottom navigation
+          pb: isMobile ? 10 : 2, // Add padding for mobile bottom navigation
+          position: 'relative',
         }}
       >
         <AnimatePresence mode="wait">
@@ -217,7 +309,7 @@ const MainLayout = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             style={{ minHeight: '100%' }}
           >
             {children}
@@ -225,74 +317,94 @@ const MainLayout = ({
         </AnimatePresence>
       </Box>
       
-      {/* Bottom Navigation (Mobile) */}
+      {/* Pixel-style Bottom Navigation (Mobile) */}
       {isMobile && (
-        <Paper
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 1000,
-            borderRadius: '24px 24px 0 0',
-            background: theme.palette.mode === 'light' 
-              ? 'rgba(255, 255, 255, 0.95)' 
-              : 'rgba(30, 30, 30, 0.95)',
-            backdropFilter: 'blur(10px)',
-          }}
-          elevation={8}
+        <motion.div
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <BottomNavigation
-            value={location.pathname}
-            onChange={handleNavigationChange}
+          <Paper
             sx={{
-              background: 'transparent',
-              '& .MuiBottomNavigationAction-root': {
-                minWidth: 'auto',
-                '&.Mui-selected': {
-                  color: primaryColor,
-                },
-              },
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1000,
+              borderRadius: '28px 28px 0 0',
+              background: theme.palette.mode === 'light' 
+                ? 'rgba(255, 255, 255, 0.95)' 
+                : 'rgba(28, 27, 31, 0.95)',
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${theme.palette.divider}`,
+              boxShadow: '0px -2px 12px rgba(0, 0, 0, 0.15)',
             }}
+            elevation={0}
           >
-            {navigationItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <BottomNavigationAction
-                  key={item.value}
-                  label={item.label}
-                  value={item.value}
-                  icon={
-                    item.value === '/notifications' ? (
-                      <Badge badgeContent={notificationCount} color="error">
-                        <IconComponent />
-                      </Badge>
-                    ) : (
-                      <IconComponent />
-                    )
-                  }
-                />
-              );
-            })}
-          </BottomNavigation>
-        </Paper>
+            <BottomNavigation
+              value={location.pathname}
+              onChange={handleNavigationChange}
+              sx={{
+                background: 'transparent',
+                height: 72,
+                '& .MuiBottomNavigationAction-root': {
+                  borderRadius: 2,
+                  mx: 0.5,
+                  transition: 'all 0.3s ease',
+                  '&.Mui-selected': {
+                    color: colorScheme.primary,
+                    background: `${colorScheme.primary}15`,
+                    '& .MuiBottomNavigationAction-icon': {
+                      transform: 'scale(1.1)',
+                    },
+                  },
+                  '& .MuiBottomNavigationAction-label': {
+                    fontFamily: '"Google Sans", sans-serif',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                  },
+                },
+              }}
+            >
+              {navigationItems.map((item) => {
+                const IconComponent = PixelIcons[item.icon];
+                return (
+                  <BottomNavigationAction
+                    key={item.value}
+                    label={item.label}
+                    value={item.value}
+                    icon={
+                      item.value === '/notifications' ? (
+                        <Badge badgeContent={notificationCount} color="error">
+                          <IconComponent size={24} />
+                        </Badge>
+                      ) : (
+                        <IconComponent size={24} />
+                      )
+                    }
+                  />
+                );
+              })}
+            </BottomNavigation>
+          </Paper>
+        </motion.div>
       )}
       
-      {/* Desktop Navigation (Hidden for now, can be implemented later) */}
+      {/* Desktop Floating Navigation */}
       {!isMobile && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1000,
-          }}
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
         >
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+            }}
           >
             <Paper
               elevation={8}
@@ -301,8 +413,10 @@ const MainLayout = ({
                 overflow: 'hidden',
                 background: theme.palette.mode === 'light' 
                   ? 'rgba(255, 255, 255, 0.95)' 
-                  : 'rgba(30, 30, 30, 0.95)',
-                backdropFilter: 'blur(10px)',
+                  : 'rgba(28, 27, 31, 0.95)',
+                backdropFilter: 'blur(20px)',
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.15)',
               }}
             >
               <BottomNavigation
@@ -311,15 +425,26 @@ const MainLayout = ({
                 sx={{
                   background: 'transparent',
                   minWidth: 500,
+                  height: 64,
                   '& .MuiBottomNavigationAction-root': {
+                    borderRadius: 2,
+                    mx: 1,
+                    transition: 'all 0.3s ease',
                     '&.Mui-selected': {
-                      color: primaryColor,
+                      color: colorScheme.primary,
+                      background: `${colorScheme.primary}15`,
+                      transform: 'translateY(-2px)',
+                    },
+                    '& .MuiBottomNavigationAction-label': {
+                      fontFamily: '"Google Sans", sans-serif',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
                     },
                   },
                 }}
               >
                 {navigationItems.map((item) => {
-                  const IconComponent = item.icon;
+                  const IconComponent = PixelIcons[item.icon];
                   return (
                     <BottomNavigationAction
                       key={item.value}
@@ -328,10 +453,10 @@ const MainLayout = ({
                       icon={
                         item.value === '/notifications' ? (
                           <Badge badgeContent={notificationCount} color="error">
-                            <IconComponent />
+                            <IconComponent size={28} />
                           </Badge>
                         ) : (
-                          <IconComponent />
+                          <IconComponent size={28} />
                         )
                       }
                     />
@@ -339,8 +464,8 @@ const MainLayout = ({
                 })}
               </BottomNavigation>
             </Paper>
-          </motion.div>
-        </Box>
+          </Box>
+        </motion.div>
       )}
     </Box>
   );
