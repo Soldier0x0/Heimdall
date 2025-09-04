@@ -14,51 +14,38 @@ import {
   Skeleton,
   useTheme,
   useMediaQuery,
+  Container,
+  Stack,
+  Fade,
 } from '@mui/material';
-import {
-  Security,
-  Map,
-  Person,
-  Psychology,
-  Wifi,
-  Share,
-  Shield,
-  Lock,
-  DeviceHub,
-  CurrencyBitcoin,
-  TrendingUp,
-  Warning,
-  CheckCircle,
-  Schedule,
-  ArrowForward,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PixelIcons } from '../components/PixelIcons';
 import axios from 'axios';
 
-const moduleIcons = {
-  OSINT: Security,
-  GEOINT: Map,
-  PEOPLEOSINT: Person,
-  HUMINT: Psychology,
-  SIGINT: Wifi,
-  SOCMINT: Share,
-  Darknet: Shield,
-  Cryptanalysis: Lock,
-  Network: DeviceHub,
-  Blockchain: CurrencyBitcoin,
+const moduleIconMap = {
+  OSINT: 'Security',
+  GEOINT: 'Map',
+  PEOPLEOSINT: 'PersonSearch',
+  HUMINT: 'Psychology',
+  SIGINT: 'SignalCellularAlt',
+  SOCMINT: 'Groups',
+  Darknet: 'VisibilityOff',
+  Cryptanalysis: 'Lock',
+  Network: 'NetworkCheck',
+  Blockchain: 'CurrencyBitcoin',
 };
 
 const moduleColors = {
-  OSINT: '#1976d2',
-  GEOINT: '#388e3c',
-  PEOPLEOSINT: '#f57c00',
-  HUMINT: '#7b1fa2',
-  SIGINT: '#d32f2f',
-  SOCMINT: '#1976d2',
+  OSINT: '#6750A4',
+  GEOINT: '#2D7D32',
+  PEOPLEOSINT: '#F57C00',
+  HUMINT: '#7B1FA2',
+  SIGINT: '#D32F2F',
+  SOCMINT: '#1976D2',
   Darknet: '#424242',
-  Cryptanalysis: '#f57c00',
-  Network: '#388e3c',
-  Blockchain: '#ff9800',
+  Cryptanalysis: '#FF6F00',
+  Network: '#388E3C',
+  Blockchain: '#FF9800',
 };
 
 const Dashboard = () => {
@@ -86,28 +73,28 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      // Set mock data for development
+      // Enhanced mock data for development
       setDashboardData({
         alerts: [
           {
             id: '1',
-            title: 'Suspicious Domain Activity',
+            title: 'Network Anomaly Detected',
             severity: 'high',
-            description: 'Unusual traffic patterns detected',
+            description: 'Suspicious traffic patterns from Eastern Europe',
             timestamp: new Date(Date.now() - 15 * 60 * 1000)
           },
           {
             id: '2',
-            title: 'New Social Media Mention',
+            title: 'New Dark Web Mention Found',
             severity: 'medium',
-            description: 'Target profile activity detected',
+            description: 'Target organization mentioned in underground forums',
             timestamp: new Date(Date.now() - 45 * 60 * 1000)
           },
           {
             id: '3',
-            title: 'Network Anomaly',
+            title: 'Social Media Profile Changes',
             severity: 'low',
-            description: 'Minor traffic spike observed',
+            description: 'Key person of interest updated LinkedIn profile',
             timestamp: new Date(Date.now() - 120 * 60 * 1000)
           }
         ],
@@ -122,15 +109,36 @@ const Dashboard = () => {
           {
             id: '2',
             module: 'SOCMINT',
-            target: '@username',
+            target: '@suspicious_account',
             status: 'in-progress',
             timestamp: new Date(Date.now() - 60 * 60 * 1000)
+          },
+          {
+            id: '3',
+            module: 'Darknet',
+            target: 'forum.onion',
+            status: 'completed',
+            timestamp: new Date(Date.now() - 90 * 60 * 1000)
+          },
+          {
+            id: '4',
+            module: 'GEOINT',
+            target: '40.7128,-74.0060',
+            status: 'failed',
+            timestamp: new Date(Date.now() - 120 * 60 * 1000)
+          },
+          {
+            id: '5',
+            module: 'Network',
+            target: '192.168.1.0/24',
+            status: 'in-progress',
+            timestamp: new Date(Date.now() - 150 * 60 * 1000)
           }
         ],
         module_stats: Object.keys(moduleColors).map(module => ({
           module,
-          success_rate: Math.random() * 0.3 + 0.7,
-          total_runs: Math.floor(Math.random() * 500) + 50,
+          success_rate: Math.random() * 0.25 + 0.70, // 70-95%
+          total_runs: Math.floor(Math.random() * 450) + 50,
           last_run: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000)
         })),
         modules: Object.entries(moduleColors).map(([key, color]) => ({
@@ -198,19 +206,19 @@ const Dashboard = () => {
 
   const getSeverityColor = (severity) => {
     switch (severity) {
-      case 'high': return '#d32f2f';
-      case 'medium': return '#f57c00';
-      case 'low': return '#388e3c';
-      default: return '#666';
+      case 'high': return theme.palette.error.main;
+      case 'medium': return theme.palette.warning.main;
+      case 'low': return theme.palette.success.main;
+      default: return theme.palette.text.secondary;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return '#4caf50';
-      case 'in-progress': return '#ff9800';
-      case 'failed': return '#f44336';
-      default: return '#666';
+      case 'completed': return theme.palette.success.main;
+      case 'in-progress': return theme.palette.warning.main;
+      case 'failed': return theme.palette.error.main;
+      default: return theme.palette.text.secondary;
     }
   };
 
@@ -227,284 +235,463 @@ const Dashboard = () => {
     }
   };
 
+  const handleModuleClick = (moduleId) => {
+    navigate(`/module/${moduleId}`);
+  };
+
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="rectangular" height={120} sx={{ mb: 3, borderRadius: 2 }} />
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Skeleton variant="rectangular" height={160} sx={{ mb: 4, borderRadius: 4 }} />
+        <Skeleton variant="rectangular" height={120} sx={{ mb: 4, borderRadius: 3 }} />
         <Grid container spacing={3}>
           {[...Array(10)].map((_, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
+              <Skeleton variant="rectangular" height={240} sx={{ borderRadius: 3 }} />
             </Grid>
           ))}
         </Grid>
-      </Box>
+      </Container>
     );
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
-      {/* At A Glance Panel */}
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* At A Glance Panel - Enhanced Pixel Style */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <Paper
-          elevation={2}
+          elevation={0}
           sx={{
-            p: 3,
+            p: 4,
             mb: 4,
-            borderRadius: 3,
-            background: theme.palette.mode === 'light' 
-              ? 'linear-gradient(135deg, #1976d2, #1565c0)' 
-              : 'linear-gradient(135deg, #1565c0, #0d47a1)',
-            color: 'white',
+            borderRadius: 4,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main}15, ${theme.palette.primary.main}05)`,
+            border: `1px solid ${theme.palette.primary.main}20`,
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <Typography variant="h5" gutterBottom fontWeight="500" sx={{ display: 'flex', alignItems: 'center' }}>
-            <TrendingUp sx={{ mr: 2 }} />
-            At A Glance
-          </Typography>
+          {/* Background Pattern */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '200px',
+              height: '200px',
+              background: `radial-gradient(circle, ${theme.palette.primary.main}10, transparent)`,
+              borderRadius: '50%',
+              transform: 'translate(50%, -50%)',
+            }}
+          />
           
-          <Grid container spacing={3}>
-            {dashboardData?.alerts?.slice(0, 3).map((alert, index) => (
-              <Grid item xs={12} md={4} key={alert.id}>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.3 }}
-                >
-                  <Card
-                    sx={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                    }}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Warning sx={{ color: getSeverityColor(alert.severity), mr: 1 }} />
-                        <Chip
-                          label={alert.severity.toUpperCase()}
-                          size="small"
-                          sx={{
-                            background: getSeverityColor(alert.severity),
-                            color: 'white',
-                            fontWeight: 'bold',
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="subtitle1" fontWeight="500" gutterBottom>
-                        {alert.title}
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                        {alert.description}
-                      </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.6 }}>
-                        {formatTimeAgo(alert.timestamp)}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-      </motion.div>
-
-      {/* Recent Activities */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        <Paper elevation={1} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
-          <Typography variant="h6" gutterBottom fontWeight="500" sx={{ display: 'flex', alignItems: 'center' }}>
-            <Schedule sx={{ mr: 2 }} />
-            Recent Activities
-          </Typography>
-          
-          <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
-            {dashboardData?.recent_activities?.map((activity, index) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <PixelIcons.TrendingUp 
+                size={32} 
+                style={{ 
+                  marginRight: 16, 
+                  color: theme.palette.primary.main 
+                }} 
+              />
+              <Typography 
+                variant="h4" 
+                fontWeight="500" 
+                sx={{ fontFamily: '"Product Sans", sans-serif' }}
               >
-                <Card
-                  sx={{
-                    minWidth: 200,
-                    cursor: 'pointer',
-                    '&:hover': { transform: 'translateY(-2px)' },
-                    transition: 'transform 0.2s ease',
-                  }}
-                >
-                  <CardContent sx={{ p: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      {React.createElement(moduleIcons[activity.module] || Security, {
-                        sx: { color: moduleColors[activity.module], mr: 1, fontSize: 20 }
-                      })}
-                      <Typography variant="subtitle2" fontWeight="500">
-                        {activity.module}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      {activity.target}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Chip
-                        label={activity.status}
-                        size="small"
+                At A Glance
+              </Typography>
+            </Box>
+            
+            <Grid container spacing={3}>
+              {dashboardData?.alerts?.slice(0, 3).map((alert, index) => (
+                <Grid item xs={12} md={4} key={alert.id}>
+                  <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.15, duration: 0.5 }}
+                    whileHover={{ scale: 1.02, y: -4 }}
+                  >
+                    <Card
+                      sx={{
+                        background: theme.palette.background.paper,
+                        borderRadius: 3,
+                        border: `2px solid ${getSeverityColor(alert.severity)}20`,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          boxShadow: `0 8px 32px ${getSeverityColor(alert.severity)}30`,
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {/* Severity Bar */}
+                      <Box
                         sx={{
-                          background: getStatusColor(activity.status),
-                          color: 'white',
-                          fontSize: '0.75rem',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 4,
+                          background: getSeverityColor(alert.severity),
                         }}
                       />
-                      <Typography variant="caption" color="text.secondary">
-                        {formatTimeAgo(activity.timestamp)}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                      
+                      <CardContent sx={{ pt: 3 }}>
+                        <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                          <PixelIcons.Warning 
+                            style={{ color: getSeverityColor(alert.severity) }} 
+                            size={24}
+                          />
+                          <Chip
+                            label={alert.severity.toUpperCase()}
+                            size="small"
+                            sx={{
+                              background: getSeverityColor(alert.severity),
+                              color: 'white',
+                              fontWeight: 600,
+                              fontSize: '0.7rem',
+                              fontFamily: '"Google Sans", sans-serif',
+                            }}
+                          />
+                        </Stack>
+                        
+                        <Typography variant="h6" fontWeight="500" gutterBottom sx={{ fontFamily: '"Google Sans", sans-serif' }}>
+                          {alert.title}
+                        </Typography>
+                        
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.5 }}>
+                          {alert.description}
+                        </Typography>
+                        
+                        <Typography variant="caption" color="text.disabled">
+                          {formatTimeAgo(alert.timestamp)}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         </Paper>
       </motion.div>
 
-      {/* Intelligence Modules Grid */}
+      {/* Recent Activities - Enhanced */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <Typography variant="h6" gutterBottom fontWeight="500" sx={{ mb: 3 }}>
-          Intelligence Disciplines
-        </Typography>
-        
-        <Grid container spacing={3}>
-          {dashboardData?.modules?.map((module, index) => {
-            const IconComponent = moduleIcons[module.name] || Security;
-            const moduleStats = dashboardData.module_stats?.find(stat => stat.module === module.name);
-            
-            return (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={module.id}>
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            p: 3, 
+            mb: 4, 
+            borderRadius: 3,
+            background: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <PixelIcons.Schedule 
+              size={28} 
+              style={{ 
+                marginRight: 12, 
+                color: theme.palette.primary.main 
+              }} 
+            />
+            <Typography 
+              variant="h5" 
+              fontWeight="500" 
+              sx={{ fontFamily: '"Product Sans", sans-serif' }}
+            >
+              Recent Activities
+            </Typography>
+          </Box>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            overflowX: 'auto', 
+            pb: 1,
+            '&::-webkit-scrollbar': {
+              height: 6,
+            },
+            '&::-webkit-scrollbar-track': {
+              background: theme.palette.background.default,
+              borderRadius: 3,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: theme.palette.primary.main,
+              borderRadius: 3,
+            },
+          }}>
+            {dashboardData?.recent_activities?.map((activity, index) => {
+              const IconComponent = PixelIcons[moduleIconMap[activity.module]];
+              return (
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  whileHover={{ y: -5 }}
+                  key={activity.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                 >
                   <Card
                     sx={{
-                      height: '100%',
+                      minWidth: 220,
                       cursor: 'pointer',
                       borderRadius: 3,
+                      border: `1px solid ${theme.palette.divider}`,
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        boxShadow: theme.shadows[8],
-                        transform: 'translateY(-2px)',
+                        boxShadow: theme.shadows[4],
+                        borderColor: theme.palette.primary.main,
                       },
-                      position: 'relative',
-                      overflow: 'hidden',
                     }}
-                    onClick={() => navigate(`/module/${module.id}`)}
                   >
-                    {/* Success Rate Ring */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: -20,
-                        right: -20,
-                        width: 80,
-                        height: 80,
-                        borderRadius: '50%',
-                        background: `conic-gradient(${module.color} ${(moduleStats?.success_rate || 0.8) * 360}deg, rgba(0,0,0,0.1) 0deg)`,
-                        opacity: 0.3,
-                      }}
-                    />
-                    
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <CardContent sx={{ p: 2.5 }}>
+                      <Stack direction="row" alignItems="center" spacing={1.5} mb={1.5}>
                         <Avatar
                           sx={{
-                            background: `${module.color}20`,
-                            color: module.color,
-                            mr: 2,
+                            width: 32,
+                            height: 32,
+                            background: `${moduleColors[activity.module]}20`,
                           }}
                         >
-                          <IconComponent />
+                          <IconComponent 
+                            size={18} 
+                            style={{ color: moduleColors[activity.module] }}
+                          />
                         </Avatar>
-                        <Box>
-                          <Typography variant="h6" fontWeight="500">
-                            {module.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {moduleStats?.total_runs || 0} runs
-                          </Typography>
-                        </Box>
-                      </Box>
+                        <Typography variant="subtitle2" fontWeight="500">
+                          {activity.module}
+                        </Typography>
+                      </Stack>
                       
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {module.description}
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        gutterBottom
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          fontSize: '0.8rem',
+                          mb: 1.5,
+                        }}
+                      >
+                        {activity.target}
                       </Typography>
                       
-                      <Box sx={{ mt: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Success Rate
-                          </Typography>
-                          <Typography variant="caption" fontWeight="500">
-                            {Math.round((moduleStats?.success_rate || 0.8) * 100)}%
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={(moduleStats?.success_rate || 0.8) * 100}
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Chip
+                          label={activity.status}
+                          size="small"
                           sx={{
-                            height: 6,
-                            borderRadius: 3,
-                            backgroundColor: `${module.color}20`,
-                            '& .MuiLinearProgress-bar': {
-                              backgroundColor: module.color,
-                              borderRadius: 3,
-                            },
+                            background: getStatusColor(activity.status),
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: 500,
+                            height: 24,
                           }}
                         />
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 2 }}>
-                        {module.tools?.slice(0, 2).map((tool) => (
-                          <Chip
-                            key={tool}
-                            label={tool}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.7rem' }}
-                          />
-                        ))}
-                        {module.tools?.length > 2 && (
-                          <Chip
-                            label={`+${module.tools.length - 2}`}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.7rem' }}
-                          />
-                        )}
-                      </Box>
+                        <Typography variant="caption" color="text.disabled">
+                          {formatTimeAgo(activity.timestamp)}
+                        </Typography>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </motion.div>
-              </Grid>
-            );
-          })}
-        </Grid>
+              );
+            })}
+          </Box>
+        </Paper>
       </motion.div>
-    </Box>
+
+      {/* Intelligence Modules Grid - Enhanced */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+      >
+        <Box sx={{ mb: 4 }}>
+          <Typography 
+            variant="h5" 
+            fontWeight="500" 
+            gutterBottom 
+            sx={{ 
+              fontFamily: '"Product Sans", sans-serif',
+              mb: 3,
+            }}
+          >
+            Intelligence Disciplines
+          </Typography>
+          
+          <Grid container spacing={3}>
+            {dashboardData?.modules?.map((module, index) => {
+              const IconComponent = PixelIcons[moduleIconMap[module.name]];
+              const moduleStats = dashboardData.module_stats?.find(stat => stat.module === module.name);
+              const successRate = moduleStats?.success_rate || 0.8;
+              
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={module.id}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.08, duration: 0.5, ease: "easeOut" }}
+                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                  >
+                    <Card
+                      onClick={() => handleModuleClick(module.id)}
+                      sx={{
+                        height: '100%',
+                        cursor: 'pointer',
+                        borderRadius: 4,
+                        border: `1px solid ${theme.palette.divider}`,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        background: theme.palette.background.paper,
+                        '&:hover': {
+                          boxShadow: `0 12px 40px ${module.color}30`,
+                          borderColor: module.color,
+                          '& .module-icon': {
+                            transform: 'scale(1.1) rotate(5deg)',
+                            color: module.color,
+                          },
+                          '& .success-ring': {
+                            transform: 'scale(1.05)',
+                          },
+                        },
+                      }}
+                    >
+                      {/* Success Rate Ring Background */}
+                      <Box
+                        className="success-ring"
+                        sx={{
+                          position: 'absolute',
+                          top: -25,
+                          right: -25,
+                          width: 80,
+                          height: 80,
+                          borderRadius: '50%',
+                          background: `conic-gradient(${module.color} ${successRate * 360}deg, ${theme.palette.background.default} 0deg)`,
+                          opacity: 0.15,
+                          transition: 'all 0.3s ease',
+                        }}
+                      />
+                      
+                      <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                          <Avatar
+                            sx={{
+                              background: `${module.color}15`,
+                              width: 48,
+                              height: 48,
+                            }}
+                          >
+                            <IconComponent 
+                              className="module-icon"
+                              size={28}
+                              style={{ 
+                                color: module.color,
+                                transition: 'all 0.3s ease',
+                              }}
+                            />
+                          </Avatar>
+                          
+                          <Box flex={1}>
+                            <Typography 
+                              variant="h6" 
+                              fontWeight="500"
+                              sx={{ fontFamily: '"Product Sans", sans-serif' }}
+                            >
+                              {module.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {moduleStats?.total_runs || 0} total runs
+                            </Typography>
+                          </Box>
+                        </Stack>
+                        
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary" 
+                          sx={{ mb: 'auto', lineHeight: 1.5 }}
+                        >
+                          {module.description}
+                        </Typography>
+                        
+                        <Box sx={{ mt: 3 }}>
+                          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                            <Typography variant="caption" color="text.secondary" fontWeight="500">
+                              Success Rate
+                            </Typography>
+                            <Typography variant="caption" fontWeight="600" color={module.color}>
+                              {Math.round(successRate * 100)}%
+                            </Typography>
+                          </Stack>
+                          
+                          <LinearProgress
+                            variant="determinate"
+                            value={successRate * 100}
+                            sx={{
+                              height: 6,
+                              borderRadius: 3,
+                              backgroundColor: `${module.color}20`,
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: module.color,
+                                borderRadius: 3,
+                              },
+                            }}
+                          />
+                        </Box>
+                        
+                        <Stack direction="row" flexWrap="wrap" gap={0.5} mt={2}>
+                          {module.tools?.slice(0, 2).map((tool) => (
+                            <Chip
+                              key={tool}
+                              label={tool}
+                              size="small"
+                              variant="outlined"
+                              sx={{ 
+                                fontSize: '0.7rem',
+                                height: 22,
+                                borderColor: `${module.color}40`,
+                                color: module.color,
+                                '&:hover': {
+                                  background: `${module.color}10`,
+                                },
+                              }}
+                            />
+                          ))}
+                          {module.tools?.length > 2 && (
+                            <Chip
+                              label={`+${module.tools.length - 2}`}
+                              size="small"
+                              sx={{ 
+                                fontSize: '0.7rem',
+                                height: 22,
+                                background: `${module.color}15`,
+                                color: module.color,
+                                border: 'none',
+                              }}
+                            />
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
+      </motion.div>
+    </Container>
   );
 };
 
