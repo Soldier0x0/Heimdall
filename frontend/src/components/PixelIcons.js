@@ -58,7 +58,6 @@ export const PixelIcons = {
   Delete: (props) => <MaterialSymbol icon="delete" variant="rounded" {...props} />,
   Download: (props) => <MaterialSymbol icon="download" variant="rounded" {...props} />,
   Upload: (props) => <MaterialSymbol icon="upload" variant="rounded" {...props} />,
-  Share: (props) => <MaterialSymbol icon="share" variant="rounded" {...props} />,
   
   // Status Icons
   CheckCircle: (props) => <MaterialSymbol icon="check_circle" variant="rounded" fill={1} {...props} />,
